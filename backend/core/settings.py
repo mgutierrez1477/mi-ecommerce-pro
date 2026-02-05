@@ -29,7 +29,9 @@ SECRET_KEY = os.environ['SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    "mi-ecommerce-pro-production.up.railway.app"
+]
 
 
 # Application definition
@@ -159,6 +161,10 @@ MEDIA_URL = '/media/'
 
 #Carpeta física donde se guardan los archivos en el servidor
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://mi-ecommerce-pro-production.up.railway.app",
+]
 
 #Permite que el front se conecte (En desarrollo)
 CORS_ALLOW_ALL_ORIGINS = True
