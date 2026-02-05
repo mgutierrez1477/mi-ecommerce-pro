@@ -95,9 +95,6 @@ DATABASES = {
     )
 }
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
@@ -155,7 +152,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 #URL para acceder a las imágenes desde el navegador
 MEDIA_URL = '/media/'
 
