@@ -1,26 +1,22 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react"; // Añadido Suspense
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { CheckCircleIcon, ShoppingBagIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
-// Si tienes un store de carrito, impórtalo para limpiarlo
-// import { useCartStore } from "@/store/useCartStore";
 
-export default function SuccessPage() {
+// 1. Movemos la lógica a un componente interno
+function SuccessContent() {
   const searchParams = useSearchParams();
   const paymentIntent = searchParams.get("payment_intent");
-  // const clearCart = useCartStore((state) => state.clearCart);
 
   useEffect(() => {
-    // Al llegar aquí, el pago fue exitoso, limpiamos el carrito local
-    // clearCart();
+    // Aquí puedes limpiar el carrito si descomentas tu store
   }, []);
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl border border-gray-100 text-center">
-        {/* Icono de Éxito Animado */}
         <div className="flex justify-center mb-6">
           <div className="rounded-full bg-green-100 p-3 animate-bounce">
             <CheckCircleIcon className="w-16 h-16 text-green-600" />
@@ -34,12 +30,11 @@ export default function SuccessPage() {
           Tu pedido ha sido procesado con éxito. Pronto recibirás un correo con los detalles de tu envío.
         </p>
 
-        {/* Detalles del Pago */}
         <div className="bg-gray-50 rounded-lg p-4 mb-8 text-left">
           <div className="flex justify-between mb-2">
             <span className="text-sm text-gray-500">ID de Transacción:</span>
             <span className="text-sm font-mono font-medium text-gray-800 truncate ml-4">
-              {paymentIntent?.slice(0, 20)}...
+              {paymentIntent ? `${paymentIntent.slice(0, 20)}...` : "N/A"}
             </span>
           </div>
           <div className="flex justify-between">
@@ -50,7 +45,6 @@ export default function SuccessPage() {
           </div>
         </div>
 
-        {/* Acciones */}
         <div className="space-y-3">
           <Link
             href="/orders"
@@ -74,5 +68,14 @@ export default function SuccessPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+// 2. El export por defecto envuelve el contenido en Suspense para evitar el error de Vercel
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Cargando confirmación...</div>}>
+      <SuccessContent />
+    </Suspense>
   );
 }
