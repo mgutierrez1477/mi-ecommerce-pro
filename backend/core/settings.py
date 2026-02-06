@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'cloudinary_storage', #Importante que este arriba de staticfiles
     'django.contrib.staticfiles',
     'cloudinary',
+    'cloudinary_storage',
     'rest_framework',
     'corsheaders',
     'users',
@@ -152,8 +153,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 #URL para acceder a las imágenes desde el navegador
 MEDIA_URL = '/media/'
 
