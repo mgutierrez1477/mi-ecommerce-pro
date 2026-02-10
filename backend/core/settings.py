@@ -29,8 +29,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles', # Debe ir antes de cloudinary_storage
     'cloudinary_storage',
+    'django.contrib.staticfiles', # Debe ir antes de cloudinary_storage
     'cloudinary',
     'rest_framework',
     'corsheaders',
@@ -134,6 +134,7 @@ CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+    'SECURE': True,
 }
 
 # Seguridad
