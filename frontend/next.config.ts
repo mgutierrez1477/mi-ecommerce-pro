@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    // Mantenemos los locales por si trabajas offline, 
-    // pero agregamos Cloudinary para producción.
+    unoptimized: true, // <--- ESTO EVITA EL ERROR 400 DE VERCEL
     remotePatterns: [
       {
         protocol: 'https',
@@ -10,15 +9,8 @@ const nextConfig = {
         pathname: '/**',
       },
       {
-        protocol: 'http',
-        hostname: '127.0.0.1',
-        port: '8000',
-        pathname: '/media/**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '8000',
+        protocol: 'https',
+        hostname: 'mi-ecommerce-pro-production.up.railway.app',
         pathname: '/media/**',
       },
     ],
