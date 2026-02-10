@@ -4,11 +4,16 @@ import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
-# ---------------- BASE ----------------
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Cargar variables de entorno
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
+# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-key')
+
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [
@@ -17,32 +22,27 @@ ALLOWED_HOSTS = [
     "127.0.0.1"
 ]
 
-# ---------------- APPS ----------------
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
-
+    'django.contrib.staticfiles', # WhiteNoise se apoya aquí (Mantenlo arriba de Cloudinary)
     'cloudinary_storage',
     'cloudinary',
-
     'rest_framework',
     'corsheaders',
-
     'users',
     'products',
     'orders.apps.OrdersConfig',
 ]
 
-# ---------------- MIDDLEWARE ----------------
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Vital para el CSS en Railway
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -51,11 +51,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# ---------------- URLS / WSGI ----------------
 ROOT_URLCONF = 'core.urls'
-WSGI_APPLICATION = 'core.wsgi.application'
 
-# ---------------- TEMPLATES ----------------
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -71,7 +68,9 @@ TEMPLATES = [
     },
 ]
 
-# ---------------- DATABASE ----------------
+WSGI_APPLICATION = 'core.wsgi.application'
+
+# Database
 DATABASES = {
     'default': dj_database_url.config(
         default='sqlite:///db.sqlite3',
@@ -79,7 +78,7 @@ DATABASES = {
     )
 }
 
-# ---------------- AUTH ----------------
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -87,9 +86,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-AUTH_USER_MODEL = "users.User"
-
-# ---------------- DRF / JWT ----------------
+# Django Rest Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -107,36 +104,26 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-# ---------------- I18N ----------------
+# Internationalization
 LANGUAGE_CODE = 'es-mx'
 TIME_ZONE = 'America/Mexico_City'
 USE_I18N = True
 USE_TZ = True
 
-# =====================================================
-# 🔥 STORAGES (FORMA CORRECTA PARA DJANGO 6)
-# =====================================================
-STORAGES = {
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+# --- ARCHIVOS ESTÁTICOS (WhiteNoise maneja el CSS) ---
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-# ---------------- STATIC ----------------
-STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+# Esta línea es la que evita que Cloudinary rompa el CSS del Admin
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# ---------------- MEDIA ----------------
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+# --- ARCHIVOS MEDIA (Cloudinary maneja las fotos) ---
+# Forzamos el motor de almacenamiento solo para archivos subidos
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# ---------------- CLOUDINARY ----------------
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
@@ -144,15 +131,20 @@ CLOUDINARY_STORAGE = {
     'SECURE': True,
 }
 
-# ---------------- SECURITY / CORS ----------------
+# Seguridad
 CSRF_TRUSTED_ORIGINS = [
     "https://mi-ecommerce-pro-production.up.railway.app",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS
+CORS_ALLOW_ALL_ORIGINS = True 
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# Custom User
+AUTH_USER_MODEL = "users.User"
 
-# ---------------- STRIPE ----------------
+# Stripe
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
 STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
+
+# Configuración necesaria para Railway/Gunicorn tras un proxy
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
