@@ -24,13 +24,13 @@ ALLOWED_HOSTS = [
 
 # Application definition
 INSTALLED_APPS = [
-    'cloudinary_storage',
+    'cloudinary_storage', # <--- Primero para MEDIA
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles', # Debe ir antes de cloudinary_storage
+    'django.contrib.staticfiles', # <--- WhiteNoise se apoya aquí para CSS
     'cloudinary',
     'rest_framework',
     'corsheaders',
@@ -40,9 +40,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', # Una sola vez arriba
+    'corsheaders.middleware.CorsMiddleware', 
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Justo aquí para los estáticos
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Maneja el CSS del Admin
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -71,7 +71,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 
 # Database
-# Railway usa la DATABASE_URL de la variable de entorno
 DATABASES = {
     'default': dj_database_url.config(
         default='sqlite:///db.sqlite3',
@@ -115,17 +114,15 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Esta carpeta debe existir en la raíz de tu proyecto
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-# Almacenamiento optimizado para producción
-if not DEBUG:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Esto asegura que WhiteNoise maneje el CSS sin que Cloudinary se meta
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # --- ARCHIVOS MEDIA (Cloudinary) ---
-# Cloudinary manejará las imágenes de los productos
+# Forzamos a que solo los archivos subidos (MEDIA) usen Cloudinary
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -143,7 +140,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # CORS
-CORS_ALLOW_ALL_ORIGINS = True # Cámbialo a una lista específica antes de ir a producción real
+CORS_ALLOW_ALL_ORIGINS = True 
 
 # Custom User
 AUTH_USER_MODEL = "users.User"
