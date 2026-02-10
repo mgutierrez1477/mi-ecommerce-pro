@@ -24,13 +24,13 @@ ALLOWED_HOSTS = [
 
 # Application definition
 INSTALLED_APPS = [
-    'cloudinary_storage', # <--- Primero para MEDIA
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles', # <--- WhiteNoise se apoya aquí para CSS
+    'django.contrib.staticfiles', # WhiteNoise se apoya aquí (Mantenlo arriba de Cloudinary)
+    'cloudinary_storage',
     'cloudinary',
     'rest_framework',
     'corsheaders',
@@ -40,9 +40,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', 
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Maneja el CSS del Admin
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Vital para el CSS en Railway
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -110,19 +110,16 @@ TIME_ZONE = 'America/Mexico_City'
 USE_I18N = True
 USE_TZ = True
 
-# --- ARCHIVOS ESTÁTICOS (WhiteNoise) ---
+# --- ARCHIVOS ESTÁTICOS (WhiteNoise maneja el CSS) ---
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
-
-# Esto asegura que WhiteNoise maneje el CSS sin que Cloudinary se meta
+# Esta línea es la que evita que Cloudinary rompa el CSS del Admin
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# --- ARCHIVOS MEDIA (Cloudinary) ---
-# Forzamos a que solo los archivos subidos (MEDIA) usen Cloudinary
+# --- ARCHIVOS MEDIA (Cloudinary maneja las fotos) ---
+# Forzamos el motor de almacenamiento solo para archivos subidos
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
