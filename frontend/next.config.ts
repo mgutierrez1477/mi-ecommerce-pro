@@ -1,9 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    // Esto permite que Next.js cargue imágenes de IPs locales
-    unoptimized: true, 
+    // Mantenemos los locales por si trabajas offline, 
+    // pero agregamos Cloudinary para producción.
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
       {
         protocol: 'http',
         hostname: '127.0.0.1',
