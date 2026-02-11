@@ -5,10 +5,10 @@ from datetime import timedelta
 from dotenv import load_dotenv
 import cloudinary
 
-# Build paths
+# 1. Rutas Base
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load environment variables
+# 2. Cargar variables de entorno
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-key')
@@ -20,10 +20,10 @@ ALLOWED_HOSTS = [
     "127.0.0.1"
 ]
 
-# Application definition
+# 3. Aplicaciones (Orden crítico para estáticos)
 INSTALLED_APPS = [
-    'whitenoise.runserver_nostatic', # Fuerza a WhiteNoise a manejar estáticos incluso en local
-    'cloudinary_storage', 
+    'whitenoise.runserver_nostatic', # Prioridad para servir CSS
+    'cloudinary_storage',            # Manejo de Media
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,9 +38,10 @@ INSTALLED_APPS = [
     'orders.apps.OrdersConfig',
 ]
 
+# 4. Middleware (WhiteNoise debe ir justo después de Security)
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Justo después de SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -69,7 +70,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# Database
+# 5. Base de Datos
 DATABASES = {
     'default': dj_database_url.config(
         default='sqlite:///db.sqlite3',
@@ -77,22 +78,32 @@ DATABASES = {
     )
 }
 
-# Internationalization
+# 6. Internacionalización
 LANGUAGE_CODE = 'es-mx'
 TIME_ZONE = 'America/Mexico_City'
 USE_I18N = True
 USE_TZ = True
 
-# --- ARCHIVOS ESTÁTICOS Y MEDIA (CONFIGURACIÓN FINAL) ---
+# --- 7. ARCHIVOS ESTÁTICOS Y MEDIA (BLINDADO PARA RAILWAY) ---
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Forzamos la búsqueda en la carpeta local 'static'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+# Buscadores de archivos: Necesarios para que collectstatic vea el Admin
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Configuración de Almacenamiento Django 6
+# Configuración unificada para Django 6
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
@@ -102,7 +113,7 @@ STORAGES = {
     },
 }
 
-# Compatibilidad con librerías y desactivación de estáticos en Cloudinary
+# Compatibilidad con librerías externas
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
 
@@ -112,10 +123,11 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
 
-# Bloqueamos que Cloudinary intente servir el CSS
+# Evitamos que Cloudinary interfiera con el CSS de WhiteNoise
 CLOUDINARY_STORAGE['STATICFILES_STORAGE'] = None
 
-# Django Rest Framework
+# --- 8. Otras configuraciones ---
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -123,23 +135,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
 }
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'AUTH_HEADER_TYPES': ('Bearer',),
-}
-
-# Seguridad y CORS
+AUTH_USER_MODEL = "users.User"
 CSRF_TRUSTED_ORIGINS = ["https://mi-ecommerce-pro-production.up.railway.app"]
 CORS_ALLOW_ALL_ORIGINS = True 
-AUTH_USER_MODEL = "users.User"
-
-# Stripe
-STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
-STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
