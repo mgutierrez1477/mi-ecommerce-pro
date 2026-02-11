@@ -22,8 +22,8 @@ ALLOWED_HOSTS = [
 
 # 3. Aplicaciones (Orden crítico para estáticos)
 INSTALLED_APPS = [
-    'whitenoise.runserver_nostatic', # Prioridad para servir CSS
-    'cloudinary_storage',            # Manejo de Media
+    'whitenoise.runserver_nostatic', 
+    'cloudinary_storage',            
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'orders.apps.OrdersConfig',
 ]
 
-# 4. Middleware (WhiteNoise debe ir justo después de Security)
+# 4. Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware', 
@@ -84,17 +84,11 @@ TIME_ZONE = 'America/Mexico_City'
 USE_I18N = True
 USE_TZ = True
 
-# --- 7. ARCHIVOS ESTÁTICOS Y MEDIA (BLINDADO PARA RAILWAY) ---
-
+# --- 7. ARCHIVOS ESTÁTICOS Y MEDIA ---
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-# Forzamos la búsqueda en la carpeta local 'static'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
-
-# Buscadores de archivos: Necesarios para que collectstatic vea el Admin
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -103,7 +97,6 @@ STATICFILES_FINDERS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Configuración unificada para Django 6
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
@@ -113,7 +106,6 @@ STORAGES = {
     },
 }
 
-# Compatibilidad con librerías externas
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
 
@@ -122,12 +114,13 @@ CLOUDINARY_STORAGE = {
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
-
-# Evitamos que Cloudinary interfiera con el CSS de WhiteNoise
 CLOUDINARY_STORAGE['STATICFILES_STORAGE'] = None
 
-# --- 8. Otras configuraciones ---
+# --- 8. VARIABLES DE STRIPE (RESTAURADAS) ---
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
 
+# --- 9. OTRAS CONFIGURACIONES ---
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
